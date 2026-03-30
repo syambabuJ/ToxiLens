@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/transparent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:text="ToxiLens"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#0D47A1"
+        android:layout_marginBottom="24dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        android:backgroundTint="#FFFDF5"
+        app:cardElevation="4dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter YouTube URL"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="#0D47A1"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/editTextUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="https://youtube.com/watch?v=..."
+                android:padding="12dp"
+                android:fontFamily="@font/inter_regular"
+                android:background="@drawable/bg_input_field"
+                android:layout_marginBottom="16dp"
+                android:inputType="textUri"
+                android:imeOptions="actionDone"/>
+
+            <Button
+                android:id="@+id/buttonAnalyze"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Analyze Comments"
+                android:fontFamily="@font/inter_medium"
+                android:backgroundTint="#86EFAC"
+                android:textColor="@color/white"
+                android:padding="12dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ADD THIS - Video Title Display -->
+    <TextView
+        android:id="@+id/textVideoTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/blue"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:background="@color/light_gray"
+        android:gravity="center_vertical"
+        android:drawableStart="@drawable/ic_play_small"
+        android:drawablePadding="8dp"/>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewComments"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="4dp"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+</LinearLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="#FFFDF5"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Video Title -->
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:text="Video Title"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/orange"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <!-- Channel Name -->
+        <TextView
+            android:id="@+id/textChannel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Channel Name"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="12sp"
+            android:textColor="@color/blue"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- Stats -->
+        <TextView
+            android:id="@+id/textStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Comments: 0"
+            android:fontFamily="@font/inter_regular"
+
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Toxicity and Date Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/textToxicityScore"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Toxicity: 0%"
+                android:fontFamily="@font/inter_regular"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/textDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:fontFamily="@font/inter_regular"
+                android:textSize="12sp"
+                android:textColor="@color/dark_gray"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

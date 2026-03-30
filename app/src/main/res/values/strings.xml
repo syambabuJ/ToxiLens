@@ -1,0 +1,8 @@
+
+    <resources>
+        <string name="app_name">ToxiLens</string>
+        <string name="title_home">Home</string>
+        <string name="title_analysis">Analysis</string>
+        <string name="title_analytics">Analytics</string>
+        <string name="title_history">History</string>
+    </resources>

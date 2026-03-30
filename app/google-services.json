@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "885952566706",
+    "firebase_url": "https://memeguardian-a9e1e-default-rtdb.firebaseio.com",
+    "project_id": "memeguardian-a9e1e",
+    "storage_bucket": "memeguardian-a9e1e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885952566706:android:6e877d2e3911e3e3fc80ab",
+        "android_client_info": {
+          "package_name": "com.example.memeguardian"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885952566706-dk30lq0uhqun73un5cn77a1crt76a53f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.memeguardian",
+            "certificate_hash": "0269d54c635038e20f35f3e6b8cf945d56f0e4ef"
+          }
+        },
+        {
+          "client_id": "885952566706-9424sstp1cvmcdjcr5bt2a0p8ftl9dc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5oquFwjQ9wmuWUfgKJqubqgOwuDy1aFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885952566706-9424sstp1cvmcdjcr5bt2a0p8ftl9dc4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885952566706:android:e743f409861a4f8afc80ab",
+        "android_client_info": {
+          "package_name": "com.example.yttoxicitychecker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "885952566706-9424sstp1cvmcdjcr5bt2a0p8ftl9dc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5oquFwjQ9wmuWUfgKJqubqgOwuDy1aFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885952566706-9424sstp1cvmcdjcr5bt2a0p8ftl9dc4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

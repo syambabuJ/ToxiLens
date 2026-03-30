@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 🔥 PRIMARY (Blinkit Gradient Colors) -->
+    <color name="primary_start">#F6D365</color>   <!-- Top -->
+    <color name="primary_mid">#FCEABB</color>     <!-- Mid -->
+    <color name="primary_end">#FFFFFF</color>     <!-- Bottom -->
+
+    <!-- Main Primary (used in buttons/text) -->
+    <color name="orange">#0D47A1</color> <!-- softer, premium orange -->
+
+    <!-- Secondary -->
+    <color name="blue">#2563EB</color>
+
+    <!-- Base Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- UI Surface Colors -->
+    <color name="light_gray">#F8F9FB</color>  <!-- softer than before -->
+    <color name="card_bg">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="dark_gray">#6B7280</color>   <!-- modern gray -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <!-- Status Colors -->
+    <color name="green">#22C55E</color>  <!-- fresher green -->
+    <color name="red">#EF4444</color>
+    <color name="dark_red">#DC2626</color>
+    <color name="yellow">#FACC15</color>
+
+</resources>

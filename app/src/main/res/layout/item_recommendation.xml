@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFDF5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:fontFamily="@font/inter_medium"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Video Title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/textChannel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Channel Name"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="11sp"
+            android:textColor="@color/dark_gray"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/textToxicity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0% toxic"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/textReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recommendation reason"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="10sp"
+            android:textColor="@color/orange"
+            android:layout_marginTop="8dp"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

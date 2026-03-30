@@ -1,0 +1,51 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme (NO ActionBar) -->
+    <style name="Theme.YTToxicityChecker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- Primary Colors -->
+        <item name="colorPrimary">#F6D365</item>
+        <item name="colorPrimaryVariant">#F6D365</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/blue</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- STATUS BAR (Blend with gradient) -->
+        <item name="android:statusBarColor">#F6D365</item>
+
+        <!-- 🔥 MOST IMPORTANT: Gradient Background -->
+        <item name="android:windowBackground">@drawable/bg_main</item>
+
+        <!-- Remove harsh effects -->
+        <item name="android:navigationBarColor">@color/white</item>
+
+    </style>
+
+    <!-- Theme with ActionBar -->
+    <style name="Theme.YTToxicityChecker.WithActionBar" parent="Theme.MaterialComponents.DayNight">
+
+        <!-- Primary Colors -->
+        <item name="colorPrimary">#F6D365</item>
+        <item name="colorPrimaryVariant">#F6D365</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/blue</item>
+        <item name="colorSecondaryVariant">@color/blue</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- STATUS BAR -->
+        <item name="android:statusBarColor">#F6D365</item>
+
+        <!-- Gradient Background -->
+        <item name="android:windowBackground">@drawable/bg_main</item>
+
+        <!-- Clean nav bar -->
+        <item name="android:navigationBarColor">@color/white</item>
+
+    </style>
+
+</resources>
