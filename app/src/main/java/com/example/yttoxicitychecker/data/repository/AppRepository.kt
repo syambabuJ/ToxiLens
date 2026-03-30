@@ -12,6 +12,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import kotlin.math.abs
 import kotlin.random.Random
 
 class AppRepository(
@@ -177,12 +178,12 @@ Return ONLY JSON.
 
     suspend fun getVideoData(videoId: String): VideoData? = firebaseManager.getVideoData(videoId)
 
-    // ==================== RECOMMENDATION METHODS ====================
+    // ==================== ENHANCED RECOMMENDATION METHODS ====================
 
     suspend fun getToxicityBasedRecommendations(currentVideo: VideoData): List<VideoData> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d(TAG, "Getting recommendations for: ${currentVideo.title}")
+                Log.d(TAG, "Getting recommendations for: ${currentVideo.title} (Toxicity: ${currentVideo.toxicityScore})")
 
                 val allVideos = mutableListOf<VideoData>()
                 firebaseManager.getAllVideos().collect { videos ->
@@ -190,38 +191,27 @@ Return ONLY JSON.
                     Log.d(TAG, "Collected ${videos.size} videos from Firebase")
                 }
 
-                Log.d(TAG, "Total videos in Firebase: ${allVideos.size}")
-
                 if (allVideos.size < 2) {
-                    Log.d(TAG, "Not enough videos for recommendations. Need at least 2, have ${allVideos.size}")
+                    Log.d(TAG, "Not enough videos for recommendations")
                     return@withContext emptyList()
                 }
 
                 val candidates = allVideos.filter { it.videoId != currentVideo.videoId }
-                Log.d(TAG, "Candidate videos after removing current: ${candidates.size}")
-
+                
                 if (candidates.isEmpty()) {
                     return@withContext emptyList()
                 }
 
+                // Calculate enhanced scores for each candidate
                 val scored = candidates.map { video ->
-                    val score = calculateRecommendationScore(currentVideo, video)
-                    Log.d(TAG, "Video: ${video.title}, Score: $score")
+                    val score = calculateEnhancedRecommendationScore(currentVideo, video)
                     Pair(video, score)
                 }
 
-                val recommendations = scored
-                    .filter { it.second > 0.3f }
-                    .sortedByDescending { it.second }
-                    .take(5)
-                    .map {
-                        it.first.copy(
-                            isRecommended = true,
-                            recommendationReason = getRecommendationReason(it.first, currentVideo)
-                        )
-                    }
-
-                Log.d(TAG, "Returning ${recommendations.size} recommendations")
+                // Get top 5 recommendations with diversity
+                val recommendations = getDiverseRecommendations(scored, currentVideo)
+                
+                Log.d(TAG, "Returning ${recommendations.size} diverse recommendations")
                 recommendations
 
             } catch (e: Exception) {
@@ -231,29 +221,120 @@ Return ONLY JSON.
         }
     }
 
-    private fun calculateRecommendationScore(current: VideoData, candidate: VideoData): Float {
+    private fun calculateEnhancedRecommendationScore(current: VideoData, candidate: VideoData): Float {
         var score = 0f
-
-        val toxicityScore = (1f - candidate.toxicityScore) * 0.4f
-        score += toxicityScore
-
-        val toxicityDiff = 1f - kotlin.math.abs(current.toxicityScore - candidate.toxicityScore)
-        score += toxicityDiff * 0.3f
-
-        val engagementScore = (candidate.totalComments / 10000f).coerceIn(0f, 0.2f)
+        
+        // FACTOR 1: Toxicity Difference (35% weight) - More dynamic
+        val toxicityDifference = 1f - abs(current.toxicityScore - candidate.toxicityScore)
+        score += toxicityDifference * 0.35f
+        
+        // FACTOR 2: Opposite Toxicity Bonus (20% weight) - Shows variety
+        // If current is highly toxic, recommend safe videos; if safe, recommend popular videos
+        val oppositeBonus = when {
+            current.toxicityScore > 0.6 && candidate.toxicityScore < 0.2 -> 0.2f  // Recommend safe alternatives
+            current.toxicityScore < 0.2 && candidate.toxicityScore > 0.4 -> 0.15f // Recommend more engaging content
+            else -> 0f
+        }
+        score += oppositeBonus
+        
+        // FACTOR 3: Engagement Score (15% weight)
+        val engagementScore = (candidate.totalComments / 5000f).coerceIn(0f, 0.15f)
         score += engagementScore
-
-        score += Random.nextFloat() * 0.1f
-
+        
+        // FACTOR 4: Safety Score (20% weight) - Prefer safer content
+        val safetyScore = (1f - candidate.toxicityScore) * 0.2f
+        score += safetyScore
+        
+        // FACTOR 5: Random Diversity (10% weight) - Ensures different recommendations each time
+        val randomSeed = Random.nextInt(0, 100) / 100f
+        score += randomSeed * 0.1f
+        
         return score.coerceIn(0f, 1f)
     }
 
-    private fun getRecommendationReason(recommended: VideoData, current: VideoData): String {
+    private fun getDiverseRecommendations(
+        scored: List<Pair<VideoData, Float>>, 
+        currentVideo: VideoData
+    ): List<VideoData> {
+        // Filter by minimum score threshold (dynamic based on current video)
+        val threshold = when {
+            currentVideo.toxicityScore > 0.6 -> 0.3f  // Lower threshold for toxic videos (show more options)
+            currentVideo.toxicityScore > 0.3 -> 0.4f  // Medium threshold
+            else -> 0.5f  // Higher threshold for safe videos (show only relevant)
+        }
+        
+        val filtered = scored.filter { it.second > threshold }
+        
+        // Group recommendations by toxicity level for diversity
+        val lowToxicity = filtered.filter { it.first.toxicityScore < 0.2 }
+        val mediumToxicity = filtered.filter { it.first.toxicityScore in 0.2..0.5 }
+        val highToxicity = filtered.filter { it.first.toxicityScore > 0.5 }
+        
+        val recommendations = mutableListOf<VideoData>()
+        
+        // Add diverse mix: 3 low, 1 medium, 1 high (for toxic videos show more safe)
+        when {
+            currentVideo.toxicityScore > 0.6 -> {
+                // High toxicity video - show mostly safe alternatives
+                recommendations.addAll(lowToxicity.take(3).map { it.first })
+                recommendations.addAll(mediumToxicity.take(1).map { it.first })
+                recommendations.addAll(highToxicity.take(1).map { it.first })
+            }
+            currentVideo.toxicityScore > 0.3 -> {
+                // Medium toxicity - balanced mix
+                recommendations.addAll(lowToxicity.take(2).map { it.first })
+                recommendations.addAll(mediumToxicity.take(2).map { it.first })
+                recommendations.addAll(highToxicity.take(1).map { it.first })
+            }
+            else -> {
+                // Low toxicity - show similar safe content
+                recommendations.addAll(lowToxicity.take(4).map { it.first })
+                recommendations.addAll(mediumToxicity.take(1).map { it.first })
+            }
+        }
+        
+        // If not enough recommendations, fill with any available
+        if (recommendations.size < 5) {
+            val remaining = filtered.filter { !recommendations.contains(it.first) }
+                .sortedByDescending { it.second }
+                .take(5 - recommendations.size)
+                .map { it.first }
+            recommendations.addAll(remaining)
+        }
+        
+        return recommendations.take(5).map { video ->
+            video.copy(
+                isRecommended = true,
+                recommendationReason = getEnhancedRecommendationReason(video, currentVideo)
+            )
+        }
+    }
+
+    private fun getEnhancedRecommendationReason(recommended: VideoData, current: VideoData): String {
         return when {
-            recommended.toxicityScore < 0.2 -> "✅ Much safer content (${(recommended.toxicityScore * 100).toInt()}% toxicity)"
-            recommended.toxicityScore < current.toxicityScore -> "📉 Lower toxicity than current video"
-            recommended.totalComments > 5000 -> "🔥 Popular with positive community"
-            else -> "🎯 You might enjoy this content"
+            // Opposite recommendation strategies
+            current.toxicityScore > 0.6 && recommended.toxicityScore < 0.2 -> 
+                "✅ Safer alternative (${(recommended.toxicityScore * 100).toInt()}% toxicity)"
+            
+            current.toxicityScore < 0.2 && recommended.toxicityScore > 0.4 -> 
+                "📊 More engaging content with ${(recommended.toxicityScore * 100).toInt()}% toxicity"
+            
+            // Toxicity based
+            recommended.toxicityScore < current.toxicityScore -> 
+                "📉 ${(current.toxicityScore * 100 - recommended.toxicityScore * 100).toInt()}% less toxic"
+            
+            recommended.toxicityScore < 0.2 -> 
+                "✅ Very safe content (${(recommended.toxicityScore * 100).toInt()}% toxicity)"
+            
+            // Engagement based
+            recommended.totalComments > 10000 -> 
+                "🔥 Highly popular (${recommended.totalComments} comments)"
+            
+            recommended.totalComments > 5000 -> 
+                "⭐ Popular with positive community"
+            
+            // Default
+            else -> "🎯 Recommended for you"
         }
     }
 }
