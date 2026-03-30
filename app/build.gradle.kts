@@ -19,8 +19,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "YOUTUBE_API_KEY", "\"AIzaSyCusKDbF2mNeAzd8m9fJSMHyA2g1uczgRM\"")
-        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyCyo9PQ1SaSOZNDhnIAzZuFtLP7yOyMUEI\"")
+        buildConfigField("String", "YOUTUBE_API_KEY", "\"\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"\"")
     }
 
     buildTypes {
