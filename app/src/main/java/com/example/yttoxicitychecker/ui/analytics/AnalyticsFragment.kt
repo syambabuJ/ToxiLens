@@ -1,12 +1,17 @@
 package com.example.yttoxicitychecker.ui.analytics
 
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -45,6 +50,9 @@ class AnalyticsFragment : Fragment() {
         observeViewModel()
         restoreExistingData()
 
+        // Apply entry animations to all views
+        applyEntryAnimations()
+
         // SHOW RECOMMENDATIONS IMMEDIATELY (No waiting)
         showRecommendationsImmediately()
     }
@@ -68,31 +76,36 @@ class AnalyticsFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // Add scale animation to buttons on click
         binding.buttonViewVideo.setOnClickListener {
-            viewModel.currentVideoId?.let { videoId ->
-                val videoData = viewModel.currentVideoData.value
-                val intent = Intent(requireContext(), WebViewActivity::class.java).apply {
-                    putExtra("video_id", videoId)
-                    putExtra("video_url", "https://www.youtube.com/watch?v=$videoId")
-                    putExtra("video_title", videoData?.title ?: "YouTube Video")
+            animateButtonPress(it) {
+                viewModel.currentVideoId?.let { videoId ->
+                    val videoData = viewModel.currentVideoData.value
+                    val intent = Intent(requireContext(), WebViewActivity::class.java).apply {
+                        putExtra("video_id", videoId)
+                        putExtra("video_url", "https://www.youtube.com/watch?v=$videoId")
+                        putExtra("video_title", videoData?.title ?: "YouTube Video")
+                    }
+                    startActivity(intent)
+                } ?: run {
+                    Toast.makeText(requireContext(), "No video analyzed yet", Toast.LENGTH_SHORT).show()
                 }
-                startActivity(intent)
-            } ?: run {
-                Toast.makeText(requireContext(), "No video analyzed yet", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.buttonShare.setOnClickListener {
-            val videoData = viewModel.currentVideoData.value
-            if (videoData != null) {
-                val shareText = buildShareText(videoData)
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_TEXT, shareText)
-                    type = "text/plain"
+            animateButtonPress(it) {
+                val videoData = viewModel.currentVideoData.value
+                if (videoData != null) {
+                    val shareText = buildShareText(videoData)
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                        type = "text/plain"
+                    }
+                    startActivity(Intent.createChooser(shareIntent, "Share Results"))
+                } else {
+                    Toast.makeText(requireContext(), "No data to share", Toast.LENGTH_SHORT).show()
                 }
-                startActivity(Intent.createChooser(shareIntent, "Share Results"))
-            } else {
-                Toast.makeText(requireContext(), "No data to share", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -113,17 +126,24 @@ class AnalyticsFragment : Fragment() {
         viewModel.currentVideoData.observe(viewLifecycleOwner) { videoData ->
             videoData?.let { data ->
                 updateAnalytics(data)
+                // Pulse animation when new data arrives on the chart
+                animatePulse(binding.canvasChart)
             }
         }
 
         viewModel.comments.observe(viewLifecycleOwner) { comments ->
             if (comments.isNotEmpty()) {
                 calculateAdvancedMetrics(comments)
+                // Find the advanced metrics card by navigating up from textAvgToxicity
+                val advancedMetricsCard = binding.textAvgToxicity.parent?.parent as? View
+                advancedMetricsCard?.let {
+                    animateSlideUp(it, 300)
+                }
             }
         }
     }
 
-    // NEW: Show recommendations IMMEDIATELY without waiting
+    // Show recommendations IMMEDIATELY without waiting
     private fun showRecommendationsImmediately() {
         // Get current video toxicity to personalize recommendations
         val currentVideo = viewModel.currentVideoData.value
@@ -133,7 +153,17 @@ class AnalyticsFragment : Fragment() {
         val recommendations = createInstantRecommendations(currentToxicity)
 
         recommendationAdapter.submitList(recommendations)
-        binding.recommendationsSection.visibility = View.VISIBLE
+
+        // Animate recommendations section sliding up
+        animateSlideUp(binding.recommendationsSection, 500)
+
+        // Animate each item in recycler view with staggered effect
+        binding.recyclerViewRecommendations.post {
+            for (i in 0 until binding.recyclerViewRecommendations.childCount) {
+                val child = binding.recyclerViewRecommendations.getChildAt(i)
+                animateSlideLeft(child, 300, (i * 80).toLong())
+            }
+        }
 
         // Set title based on toxicity
         val title = when {
@@ -141,7 +171,9 @@ class AnalyticsFragment : Fragment() {
             currentToxicity > 0.4 -> "📊 Lower Toxicity Videos"
             else -> "🎯 You Might Also Like"
         }
-        binding.textRecommendationTitle.text = title
+
+        // Animate title change
+        animateTextChange(binding.textRecommendationTitle, title)
 
         // Load real recommendations in background (will replace these later)
         loadRealRecommendationsInBackground(currentVideo)
@@ -196,8 +228,6 @@ class AnalyticsFragment : Fragment() {
                 recommendationReason = "😊 Extremely positive content"
             )
         )
-
-        // Return safe videos immediately (no waiting)
         return safeVideos
     }
 
@@ -206,21 +236,49 @@ class AnalyticsFragment : Fragment() {
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
+                // Show progress bar while loading
+                binding.progressRecommendations.visibility = View.VISIBLE
+
                 val realRecommendations = withContext(Dispatchers.IO) {
                     viewModel.repository.getToxicityBasedRecommendations(currentVideo)
                 }
 
                 if (realRecommendations.isNotEmpty()) {
-                    // Replace test recommendations with real ones
-                    recommendationAdapter.submitList(realRecommendations)
-                    binding.textRecommendationTitle.text = when {
-                        currentVideo.toxicityScore > 0.7 -> "⚠️ Safer Alternatives"
-                        currentVideo.toxicityScore > 0.4 -> "📊 Recommended for You"
-                        else -> "🎯 You Might Also Like"
+                    // Hide progress bar
+                    binding.progressRecommendations.visibility = View.GONE
+
+                    // Fade out old recommendations
+                    animateFadeOut(binding.recyclerViewRecommendations, 200) {
+                        // Replace test recommendations with real ones
+                        recommendationAdapter.submitList(realRecommendations)
+
+                        val newTitle = when {
+                            currentVideo.toxicityScore > 0.7 -> "⚠️ Safer Alternatives"
+                            currentVideo.toxicityScore > 0.4 -> "📊 Recommended for You"
+                            else -> "🎯 You Might Also Like"
+                        }
+
+                        // Animate title change
+                        animateTextChange(binding.textRecommendationTitle, newTitle)
+
+                        // Fade in new recommendations
+                        animateFadeIn(binding.recyclerViewRecommendations, 300)
+
+                        // Animate each new item with stagger
+                        binding.recyclerViewRecommendations.postDelayed({
+                            for (i in 0 until binding.recyclerViewRecommendations.childCount) {
+                                val child = binding.recyclerViewRecommendations.getChildAt(i)
+                                animateScaleIn(child, 300, (i * 50).toLong())
+                            }
+                        }, 100)
                     }
+
                     Log.d("AnalyticsFragment", "Updated with ${realRecommendations.size} real recommendations")
+                } else {
+                    binding.progressRecommendations.visibility = View.GONE
                 }
             } catch (e: Exception) {
+                binding.progressRecommendations.visibility = View.GONE
                 Log.e("AnalyticsFragment", "Error loading real recommendations", e)
             }
         }
@@ -228,11 +286,13 @@ class AnalyticsFragment : Fragment() {
 
     private fun updateAnalytics(videoData: VideoData) {
         val displayTitle = videoData.title.ifEmpty { "YouTube Video" }
-        binding.textVideoTitle.text = displayTitle
+
+        // Animate text changes
+        animateTextChange(binding.textVideoTitle, displayTitle)
         binding.textVideoTitle.visibility = View.VISIBLE
 
         try {
-            binding.textChannelName.text = videoData.channelTitle.ifEmpty { "Unknown Channel" }
+            animateTextChange(binding.textChannelName, videoData.channelTitle.ifEmpty { "Unknown Channel" })
             binding.textChannelName.visibility = View.VISIBLE
         } catch (e: Exception) { }
 
@@ -243,20 +303,38 @@ class AnalyticsFragment : Fragment() {
         }
 
         try {
-            binding.textToxicityLevel.text = toxicityLevel
+            animateTextChange(binding.textToxicityLevel, toxicityLevel)
             binding.textToxicityLevel.visibility = View.VISIBLE
         } catch (e: Exception) { }
 
-        binding.textTotalComments.text = "Total Comments: ${videoData.totalComments}"
-        binding.textToxicCount.text = "Toxic: ${videoData.toxicCount}"
-        binding.textNeutralCount.text = "Neutral: ${videoData.neutralCount}"
-        binding.textSafeCount.text = "Safe: ${videoData.safeCount}"
+        // Animate text updates for comment counts
+        animateTextChange(binding.textTotalComments, "📝 Total Comments: ${videoData.totalComments}")
+        animateTextChange(binding.textToxicCount, "🔴 Toxic: ${videoData.toxicCount}")
+        animateTextChange(binding.textNeutralCount, "🟡 Neutral: ${videoData.neutralCount}")
+        animateTextChange(binding.textSafeCount, "🟢 Safe: ${videoData.safeCount}")
 
         val toxicityPercentage = (videoData.toxicityScore * 100).toInt()
-        binding.textToxicityScore.text = "Toxicity Score: $toxicityPercentage%"
+        animateTextChange(binding.textToxicityScore, "$toxicityPercentage%")
 
+        // Animate the toxicity score text separately
+        binding.textToxicityScore.animate()
+            .scaleX(1.1f)
+            .scaleY(1.1f)
+            .setDuration(200)
+            .withEndAction {
+                binding.textToxicityScore.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
+
+        // Animated chart update
         binding.canvasChart.updateData(videoData.toxicCount, videoData.neutralCount, videoData.safeCount)
-        binding.progressToxicity.progress = toxicityPercentage
+
+        // Animated progress bar
+        animateProgressBar(binding.progressToxicity, toxicityPercentage)
     }
 
     private fun calculateAdvancedMetrics(comments: List<com.example.yttoxicitychecker.data.model.Comment>) {
@@ -264,15 +342,17 @@ class AnalyticsFragment : Fragment() {
 
         if (toxicComments.isNotEmpty()) {
             val avgToxicity = toxicComments.map { it.toxicityResult?.toxicityScore ?: 0f }.average()
-            binding.textAvgToxicity.text = "Avg Toxicity: ${(avgToxicity * 100).toInt()}%"
+            animateTextChange(binding.textAvgToxicity, "Avg Toxicity: ${(avgToxicity * 100).toInt()}%")
         } else {
-            binding.textAvgToxicity.text = "Avg Toxicity: 0%"
+            animateTextChange(binding.textAvgToxicity, "Avg Toxicity: 0%")
         }
 
         val sentimentCounts = comments.groupBy { it.toxicityResult?.sentiment ?: "Neutral" }
-        binding.textSentimentDist.text = "Sentiment: ${sentimentCounts["Positive"]?.size ?: 0} 😊 | " +
+        val sentimentText = "Sentiment: ${sentimentCounts["Positive"]?.size ?: 0} 😊 | " +
                 "${sentimentCounts["Neutral"]?.size ?: 0} 😐 | " +
                 "${sentimentCounts["Negative"]?.size ?: 0} 😞"
+
+        animateTextChange(binding.textSentimentDist, sentimentText)
     }
 
     private fun buildShareText(videoData: VideoData): String {
@@ -292,6 +372,168 @@ class AnalyticsFragment : Fragment() {
             
             Analyzed by ToxiLens
         """.trimIndent()
+    }
+
+    // ==================== ANIMATION METHODS ====================
+
+    private fun applyEntryAnimations() {
+        // Get all the main cards from the layout by finding their parent containers
+        val viewsToAnimate = mutableListOf<View>()
+
+        // Find the video title card (parent of textVideoTitle)
+        binding.textVideoTitle.parent?.parent?.let { viewsToAnimate.add(it as View) }
+
+        // Add the chart
+        viewsToAnimate.add(binding.canvasChart)
+
+        // Find the toxicity distribution card (parent of textTotalComments)
+        binding.textTotalComments.parent?.parent?.let { viewsToAnimate.add(it as View) }
+
+        // Find the advanced metrics card (parent of textAvgToxicity)
+        binding.textAvgToxicity.parent?.parent?.let { viewsToAnimate.add(it as View) }
+
+        // Add recommendations section
+        viewsToAnimate.add(binding.recommendationsSection)
+
+        // Apply staggered animations
+        viewsToAnimate.forEachIndexed { index, view ->
+            animateSlideUp(view, 400, (index * 100).toLong())
+        }
+
+        // Individual view animations with different effects
+        animateSlideUp(binding.textVideoTitle, 300)
+        animateSlideUp(binding.textChannelName, 350)
+        animateScaleIn(binding.buttonViewVideo, 400)
+        animateScaleIn(binding.buttonShare, 450)
+        animateFadeIn(binding.progressToxicity, 500)
+    }
+
+    // Slide up animation
+    private fun animateSlideUp(view: View, duration: Long = 400, delay: Long = 0) {
+        view.translationY = 100f
+        view.alpha = 0f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(duration)
+            .setStartDelay(delay)
+            .setInterpolator(OvershootInterpolator(0.5f))
+            .start()
+    }
+
+    // Slide left animation
+    private fun animateSlideLeft(view: View, duration: Long = 400, delay: Long = 0) {
+        view.translationX = 100f
+        view.alpha = 0f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .translationX(0f)
+            .alpha(1f)
+            .setDuration(duration)
+            .setStartDelay(delay)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    // Scale in animation
+    private fun animateScaleIn(view: View, duration: Long = 300, delay: Long = 0) {
+        view.scaleX = 0f
+        view.scaleY = 0f
+        view.alpha = 0f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .alpha(1f)
+            .setDuration(duration)
+            .setStartDelay(delay)
+            .setInterpolator(OvershootInterpolator(0.7f))
+            .start()
+    }
+
+    // Fade in animation
+    private fun animateFadeIn(view: View, duration: Long = 300, delay: Long = 0) {
+        view.alpha = 0f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .alpha(1f)
+            .setDuration(duration)
+            .setStartDelay(delay)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    // Fade out animation with callback
+    private fun animateFadeOut(view: View, duration: Long = 200, onEnd: (() -> Unit)? = null) {
+        view.animate()
+            .alpha(0f)
+            .setDuration(duration)
+            .withEndAction {
+                view.visibility = View.GONE
+                onEnd?.invoke()
+            }
+            .start()
+    }
+
+    // Text change animation with crossfade
+    private fun animateTextChange(textView: TextView, newText: String) {
+        textView.animate()
+            .alpha(0f)
+            .setDuration(150)
+            .withEndAction {
+                textView.text = newText
+                textView.animate()
+                    .alpha(1f)
+                    .setDuration(150)
+                    .start()
+            }
+            .start()
+    }
+
+    // Progress bar animation
+    private fun animateProgressBar(progressBar: ProgressBar, targetProgress: Int) {
+        ValueAnimator.ofInt(progressBar.progress, targetProgress).apply {
+            duration = 800
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener {
+                progressBar.progress = it.animatedValue as Int
+            }
+            start()
+        }
+    }
+
+    // Button press animation with scale effect
+    private fun animateButtonPress(button: View, onClick: () -> Unit) {
+        button.animate()
+            .scaleX(0.95f)
+            .scaleY(0.95f)
+            .setDuration(100)
+            .withEndAction {
+                onClick()
+                button.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
+    }
+
+    // Pulse animation for highlighting changes
+    private fun animatePulse(view: View) {
+        view.animate()
+            .scaleX(1.05f)
+            .scaleY(1.05f)
+            .setDuration(200)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
     }
 
     override fun onDestroyView() {
