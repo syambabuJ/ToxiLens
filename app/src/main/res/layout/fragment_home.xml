@@ -19,48 +19,62 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        android:backgroundTint="#FFFDF5"
-        app:cardElevation="4dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+
+        app:cardCornerRadius="20dp"
+        app:cardElevation="10dp"
+
+        android:backgroundTint="#CCFFFFFF"
+        app:strokeColor="#40FFFFFF"
+        app:strokeWidth="1dp"
+
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="18dp">
 
+            <!-- 🔷 Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Enter YouTube URL"
-                android:textSize="16sp"
-                android:fontFamily="@font/inter_medium"
-                android:textColor="#0D47A1"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:textSize="18sp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="#0B3C91"
+                android:layout_marginBottom="10dp"/>
 
+            <!-- 🔷 Input Field -->
             <EditText
                 android:id="@+id/editTextUrl"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="https://youtube.com/watch?v=..."
-                android:padding="12dp"
+                android:layout_height="52dp"
+                android:hint="Paste YouTube link here..."
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
                 android:fontFamily="@font/inter_regular"
+                android:textColor="#1F2937"
+                android:textColorHint="#9CA3AF"
                 android:background="@drawable/bg_input_field"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="18dp"
                 android:inputType="textUri"
                 android:imeOptions="actionDone"/>
 
+            <!-- 🔷 Button -->
             <Button
                 android:id="@+id/buttonAnalyze"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:text="Analyze Comments"
-                android:fontFamily="@font/inter_medium"
-                android:backgroundTint="#86EFAC"
-                android:textColor="@color/white"
-                android:padding="12dp"/>
+                android:textAllCaps="false"
+                android:fontFamily="@font/inter_semibold"
+                android:backgroundTint="#22C55E"
+                android:textColor="@android:color/white"
+                android:elevation="2dp"
+                android:stateListAnimator="@null"/>
 
         </LinearLayout>
 
