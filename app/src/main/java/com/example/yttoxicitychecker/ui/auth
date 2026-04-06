@@ -1,1 +1,373 @@
+package com.toxilens.yttoxicitychecker.ui.auth
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+class AuthViewModel : ViewModel() {
+
+    private val auth = FirebaseAuth.getInstance()
+    private val database = FirebaseDatabase.getInstance().reference
+
+    private val _authState = MutableLiveData<AuthState>()
+    val authState: LiveData<AuthState> = _authState
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    private val _resetPasswordMessage = MutableLiveData<String?>()
+    val resetPasswordMessage: LiveData<String?> = _resetPasswordMessage
+
+    private val _deleteAccountMessage = MutableLiveData<String?>()
+    val deleteAccountMessage: LiveData<String?> = _deleteAccountMessage
+
+    fun signIn(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _errorMessage.value = "Please enter email and password"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            try {
+                val result = auth.signInWithEmailAndPassword(email, password).await()
+                _authState.value = AuthState.Success(result.user)
+            } catch (e: Exception) {
+                _errorMessage.value = when {
+                    e.message?.contains("INVALID_LOGIN_CREDENTIALS") == true -> "Invalid email or password"
+                    e.message?.contains("USER_DISABLED") == true -> "This account has been disabled"
+                    e.message?.contains("TOO_MANY_ATTEMPTS") == true -> "Too many failed attempts. Try again later."
+                    else -> e.message ?: "Sign in failed"
+                }
+                _authState.value = AuthState.Error
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun signUp(email: String, password: String, confirmPassword: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _errorMessage.value = "Please fill all fields"
+            return
+        }
+
+        if (password != confirmPassword) {
+            _errorMessage.value = "Passwords do not match"
+            return
+        }
+
+        if (password.length < 6) {
+            _errorMessage.value = "Password must be at least 6 characters"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            try {
+                val result = auth.createUserWithEmailAndPassword(email, password).await()
+                _authState.value = AuthState.Success(result.user)
+            } catch (e: Exception) {
+                _errorMessage.value = when {
+                    e.message?.contains("EMAIL_EXISTS") == true -> "Email already registered"
+                    e.message?.contains("WEAK_PASSWORD") == true -> "Password is too weak"
+                    e.message?.contains("INVALID_EMAIL") == true -> "Invalid email address"
+                    else -> e.message ?: "Sign up failed"
+                }
+                _authState.value = AuthState.Error
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String) {
+        if (email.isEmpty()) {
+            _resetPasswordMessage.value = "Please enter your email address"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            try {
+                auth.sendPasswordResetEmail(email).await()
+                _resetPasswordMessage.value = "Password reset link sent to $email. Please check your inbox."
+            } catch (e: Exception) {
+                _resetPasswordMessage.value = when {
+                    e.message?.contains("USER_NOT_FOUND") == true -> "No account found with this email address"
+                    e.message?.contains("INVALID_EMAIL") == true -> "Invalid email address"
+                    else -> "Failed to send reset email. Please try again."
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteAccount(password: String, onSuccess: () -> Unit) {
+        val user = auth.currentUser
+        if (user == null) {
+            _deleteAccountMessage.value = "No user logged in"
+            return
+        }
+
+        val email = user.email ?: ""
+        if (email.isEmpty()) {
+            _deleteAccountMessage.value = "Unable to get user email"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _deleteAccountMessage.value = null
+
+            try {
+                // Re-authenticate user before deleting
+                val credential = EmailAuthProvider.getCredential(email, password)
+                user.reauthenticate(credential).await()
+
+                // Delete user data from Firebase Realtime Database
+                val userId = user.uid
+                database.child("users").child(userId).removeValue().await()
+
+                // Delete user from Firebase Authentication
+                user.delete().await()
+
+                _deleteAccountMessage.value = "Account deleted successfully"
+                onSuccess()
+            } catch (e: Exception) {
+                _deleteAccountMessage.value = when {
+                    e.message?.contains("INVALID_LOGIN_CREDENTIALS") == true -> "Incorrect password. Please try again."
+                    e.message?.contains("REQUIRES_RECENT_LOGIN") == true -> "Please log in again before deleting account"
+                    else -> e.message ?: "Failed to delete account. Please try again."
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun signOut() {
+        auth.signOut()
+        _authState.value = AuthState.LoggedOut
+    }
+
+    fun getCurrentUser(): FirebaseUser? = auth.currentUser
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
+    fun clearResetPasswordMessage() {
+        _resetPasswordMessage.value = null
+    }
+
+    fun clearDeleteAccountMessage() {
+        _deleteAccountMessage.value = null
+    }
+
+    sealed class AuthState {
+        data class Success(val user: FirebaseUser?) : AuthState()
+        object Error : AuthState()
+        object LoggedOut : AuthState()
+    }
+}
+
+
+package com.toxilens.yttoxicitychecker.ui.auth
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.toxilens.yttoxicitychecker.databinding.ActivityLoginBinding
+import com.toxilens.yttoxicitychecker.ui.main.MainActivity
+
+class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+    private lateinit var authViewModel: AuthViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
+        setupClickListeners()
+        observeViewModel()
+    }
+
+    private fun setupClickListeners() {
+        binding.buttonLogin.setOnClickListener {
+            val email = binding.editTextEmail.text.toString().trim()
+            val password = binding.editTextPassword.text.toString().trim()
+            authViewModel.signIn(email, password)
+        }
+
+        binding.textViewRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
+
+        binding.textViewForgotPassword.setOnClickListener {
+            showForgotPasswordDialog()
+        }
+    }
+
+    private fun showForgotPasswordDialog() {
+        val email = binding.editTextEmail.text.toString().trim()
+
+        // Create a custom view for email input
+        val inputEditText = TextInputEditText(this).apply {
+            hint = "Enter your email address"
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            if (email.isNotEmpty()) {
+                setText(email)
+            }
+            layoutParams = android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(48, 32, 48, 32)
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Reset Password")
+            .setMessage("Enter your email address to receive a password reset link")
+            .setView(inputEditText)
+            .setPositiveButton("Send Reset Link") { _, _ ->
+                val resetEmail = inputEditText.text.toString().trim()
+                if (resetEmail.isNotEmpty()) {
+                    authViewModel.sendPasswordResetEmail(resetEmail)
+                } else {
+                    Toast.makeText(this, "Please enter your email address", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun observeViewModel() {
+        authViewModel.authState.observe(this) { state ->
+            when (state) {
+                is AuthViewModel.AuthState.Success -> {
+                    Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
+                is AuthViewModel.AuthState.Error -> {
+                    // Error already handled in errorMessage
+                }
+                else -> {}
+            }
+        }
+
+        authViewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+            binding.buttonLogin.isEnabled = !isLoading
+        }
+
+        authViewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                authViewModel.clearError()
+            }
+        }
+
+        authViewModel.resetPasswordMessage.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                authViewModel.clearResetPasswordMessage()
+            }
+        }
+    }
+}
+
+package com.toxilens.yttoxicitychecker.ui.auth
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.toxilens.yttoxicitychecker.databinding.ActivityRegisterBinding
+import com.toxilens.yttoxicitychecker.ui.main.MainActivity
+
+class RegisterActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityRegisterBinding
+    private lateinit var authViewModel: AuthViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+
+        setupClickListeners()
+        observeViewModel()
+    }
+
+    private fun setupClickListeners() {
+        binding.buttonRegister.setOnClickListener {
+            val email = binding.editTextEmail.text.toString().trim()
+            val password = binding.editTextPassword.text.toString().trim()
+            val confirmPassword = binding.editTextConfirmPassword.text.toString().trim()
+            authViewModel.signUp(email, password, confirmPassword)
+        }
+
+        binding.textViewLogin.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+    }
+
+    private fun observeViewModel() {
+        authViewModel.authState.observe(this) { state ->
+            when (state) {
+                is AuthViewModel.AuthState.Success -> {
+                    Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+                is AuthViewModel.AuthState.Error -> {
+                    // Error already handled
+                }
+                else -> {}
+            }
+        }
+
+        authViewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+            binding.buttonRegister.isEnabled = !isLoading
+        }
+
+        authViewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                authViewModel.clearError()
+            }
+        }
+    }
+}
 
