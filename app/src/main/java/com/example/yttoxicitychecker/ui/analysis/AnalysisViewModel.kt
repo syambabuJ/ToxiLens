@@ -1,13 +1,13 @@
-package com.example.yttoxicitychecker.ui.analysis
+package com.toxilens.yttoxicitychecker.ui.analysis
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.yttoxicitychecker.data.model.Comment
-import com.example.yttoxicitychecker.data.model.VideoData
-import com.example.yttoxicitychecker.data.repository.AppRepository
-import com.example.yttoxicitychecker.firebase.FirebaseManager
+import com.toxilens.yttoxicitychecker.data.model.Comment
+import com.toxilens.yttoxicitychecker.data.model.VideoData
+import com.toxilens.yttoxicitychecker.data.repository.AppRepository
+import com.toxilens.yttoxicitychecker.firebase.FirebaseManager
 import kotlinx.coroutines.launch
 
 class AnalysisViewModel : ViewModel() {

@@ -1,19 +1,23 @@
-package com.example.yttoxicitychecker.ui.adapters
+package com.toxilens.yttoxicitychecker.ui.adapters
 
+import android.widget.Filter
+import android.widget.Filterable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.yttoxicitychecker.data.model.Comment
-import com.example.yttoxicitychecker.databinding.ItemCommentBinding
+import com.toxilens.yttoxicitychecker.data.model.Comment
+import com.toxilens.yttoxicitychecker.databinding.ItemCommentBinding
 
 class CommentAdapter(
     private val onItemClick: (Comment) -> Unit
-) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
+) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>(), Filterable {
 
-    private var comments = listOf<Comment>()
+    private var allComments = listOf<Comment>()
+    private var filteredComments = listOf<Comment>()
 
     fun submitList(list: List<Comment>) {
-        comments = list
+        allComments = list
+        filteredComments = list
         notifyDataSetChanged()
     }
 
@@ -25,10 +29,53 @@ class CommentAdapter(
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        holder.bind(comments[position])
+        holder.bind(filteredComments[position])
     }
 
-    override fun getItemCount() = comments.size
+    override fun getItemCount() = filteredComments.size
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val filterType = constraint?.toString() ?: "all"
+
+                val filtered = when (filterType) {
+                    "toxic" -> allComments.filter { it.toxicityResult?.isToxic == true }
+                    "neutral" -> allComments.filter {
+                        it.toxicityResult?.toxicityScore?.let { score -> score > 0.3f && score <= 0.6f } == true
+                    }
+                    "safe" -> allComments.filter {
+                        it.toxicityResult?.isToxic == false &&
+                                (it.toxicityResult?.toxicityScore ?: 0f) <= 0.3f
+                    }
+                    else -> allComments
+                }
+
+                return FilterResults().apply {
+                    values = filtered
+                    count = filtered.size
+                }
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                filteredComments = results?.values as? List<Comment> ?: allComments
+                notifyDataSetChanged()
+            }
+        }
+    }
+
+    fun getStats(): Triple<Int, Int, Int> {
+        val toxic = allComments.count { it.toxicityResult?.isToxic == true }
+        val neutral = allComments.count {
+            it.toxicityResult?.toxicityScore?.let { score -> score > 0.3f && score <= 0.6f } == true
+        }
+        val safe = allComments.count {
+            it.toxicityResult?.isToxic == false &&
+                    (it.toxicityResult?.toxicityScore ?: 0f) <= 0.3f
+        }
+        return Triple(toxic, neutral, safe)
+    }
 
     class CommentViewHolder(
         private val binding: ItemCommentBinding,
@@ -36,79 +83,42 @@ class CommentAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(comment: Comment) {
-            // Set basic info
             binding.textAuthor.text = comment.author
             binding.textComment.text = comment.text
             binding.textLikes.text = "❤️ ${comment.likeCount}"
 
-            // Set toxicity badge based on result
             comment.toxicityResult?.let { result ->
-                // Set badge text with icon
-                binding.textToxicityBadge.text = result.getBadgeText()
+                val badgeText = "${result.getIcon()} ${result.category}"
+                binding.textToxicityBadge.text = badgeText
 
-                // Set badge background color based on toxicity
-                val badgeColor = result.getColor()
+                val badgeColor = when {
+                    result.isToxic -> android.graphics.Color.parseColor("#EF4444")
+                    result.toxicityScore > 0.5f -> android.graphics.Color.parseColor("#F59E0B")
+                    else -> android.graphics.Color.parseColor("#10B981")
+                }
                 binding.textToxicityBadge.setBackgroundColor(badgeColor)
 
-                // Update card background based on toxicity level
                 val cardColor = when {
-                    result.isToxic && result.category == "Hate Speech" ->
-                        android.graphics.Color.parseColor("#30DC2626")
-                    result.isToxic ->
-                        android.graphics.Color.parseColor("#20EF4444")
-                    result.toxicityScore > 0.5f ->
-                        android.graphics.Color.parseColor("#20F59E0B")
-                    else ->
-                        android.graphics.Color.WHITE
+                    result.isToxic -> android.graphics.Color.parseColor("#20EF4444")
+                    result.toxicityScore > 0.5f -> android.graphics.Color.parseColor("#20F59E0B")
+                    else -> android.graphics.Color.BLUE
                 }
                 binding.cardView.setCardBackgroundColor(cardColor)
 
-                // Show toxicity score
-                val scorePercentage = result.getScorePercentage()
+                val scorePercentage = (result.toxicityScore * 100).toInt()
                 binding.textToxicityScore.text = "$scorePercentage%"
                 binding.textToxicityScore.visibility = android.view.View.VISIBLE
 
-                // Show progress bar
                 binding.progressToxicity.progress = scorePercentage
                 binding.progressToxicity.visibility = android.view.View.VISIBLE
                 binding.progressToxicity.progressTintList = android.content.res.ColorStateList.valueOf(badgeColor)
 
-                // NEW: Show multi-label toxicity types
-                val toxicityTypesText = result.getToxicityTypeNames()
-                val toxicityIcons = result.getToxicityTypeIcons()
-
                 if (result.toxicityTypes.isNotEmpty()) {
-                    binding.textToxicityTypes.text = "$toxicityIcons $toxicityTypesText"
+                    val typesText = result.getToxicityTypeIcons()
+                    binding.textToxicityTypes.text = typesText
                     binding.textToxicityTypes.visibility = android.view.View.VISIBLE
-
-                    // Show primary type if available
-                    if (result.primaryType.isNotEmpty()) {
-                        binding.textPrimaryType.text = "⚠️ Primary: ${result.getPrimaryTypeName()}"
-                        binding.textPrimaryType.visibility = android.view.View.VISIBLE
-                    }
-                } else {
-                    binding.textToxicityTypes.visibility = android.view.View.GONE
-                    binding.textPrimaryType.visibility = android.view.View.GONE
                 }
 
-                // Set click listener with reasoning
-                itemView.setOnClickListener {
-                    onItemClick(comment)
-                    android.widget.Toast.makeText(
-                        itemView.context,
-                        "${result.reasoning}\n\nToxicity Types: ${result.getToxicityTypeNames()}",
-                        android.widget.Toast.LENGTH_LONG
-                    ).show()
-                }
-
-            } ?: run {
-                // No analysis yet
-                binding.textToxicityBadge.text = "🟡 Analyzing..."
-                binding.textToxicityBadge.setBackgroundColor(android.graphics.Color.parseColor("#9CA3AF"))
-                binding.textToxicityScore.visibility = android.view.View.GONE
-                binding.progressToxicity.visibility = android.view.View.GONE
-                binding.textToxicityTypes.visibility = android.view.View.GONE
-                binding.textPrimaryType.visibility = android.view.View.GONE
                 itemView.setOnClickListener { onItemClick(comment) }
             }
         }

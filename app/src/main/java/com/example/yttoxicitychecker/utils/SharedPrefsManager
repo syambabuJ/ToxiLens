@@ -1,0 +1,28 @@
+package com.toxilens.yttoxicitychecker.utils
+
+import android.content.Context
+import android.content.SharedPreferences
+
+class SharedPrefsManager(context: Context) {
+    private val prefs: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+    fun saveUserLoggedIn(isLoggedIn: Boolean) {
+        prefs.edit().putBoolean("is_logged_in", isLoggedIn).apply()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return prefs.getBoolean("is_logged_in", false)
+    }
+
+    fun saveUserId(userId: String) {
+        prefs.edit().putString("user_id", userId).apply()
+    }
+
+    fun getUserId(): String? {
+        return prefs.getString("user_id", null)
+    }
+
+    fun clearUserData() {
+        prefs.edit().clear().apply()
+    }
+}

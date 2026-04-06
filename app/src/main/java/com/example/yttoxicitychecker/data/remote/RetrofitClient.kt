@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.data.remote
+package com.toxilens.yttoxicitychecker.data.remote
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
