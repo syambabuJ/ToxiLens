@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.data.model
+package com.toxilens.yttoxicitychecker.data.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
