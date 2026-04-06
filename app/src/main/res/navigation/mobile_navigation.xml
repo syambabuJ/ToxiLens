@@ -7,25 +7,33 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.yttoxicitychecker.ui.home.HomeFragment"
-        android:label="@string/title_home"
+        android:name="com.toxilens.yttoxicitychecker.ui.home.HomeFragment"
+        android:label="Home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_analysis"
-        android:name="com.example.yttoxicitychecker.ui.analysis.AnalysisFragment"
-        android:label="@string/title_analysis"
+        android:name="com.toxilens.yttoxicitychecker.ui.analysis.AnalysisFragment"
+        android:label="Analysis"
         tools:layout="@layout/fragment_analysis" />
 
     <fragment
         android:id="@+id/navigation_analytics"
-        android:name="com.example.yttoxicitychecker.ui.analytics.AnalyticsFragment"
-        android:label="@string/title_analytics"
+        android:name="com.toxilens.yttoxicitychecker.ui.analytics.AnalyticsFragment"
+        android:label="Analytics"
         tools:layout="@layout/fragment_analytics" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.example.yttoxicitychecker.ui.history.HistoryFragment"
-        android:label="@string/title_history"
+        android:name="com.toxilens.yttoxicitychecker.ui.history.HistoryFragment"
+        android:label="History"
         tools:layout="@layout/fragment_history" />
+
+    <!-- ADD THIS - Channel Analysis Fragment -->
+    <fragment
+        android:id="@+id/navigation_channel"
+        android:name="com.toxilens.yttoxicitychecker.ui.channel.ChannelAnalysisFragment"
+        android:label="Channel"
+        tools:layout="@layout/fragment_channel_analysis" />
+
 </navigation>

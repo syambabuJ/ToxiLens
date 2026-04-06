@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 🔥 PRIMARY (Blinkit Gradient Colors) -->
-    <color name="primary_start">#F6D365</color>   <!-- Top -->
-    <color name="primary_mid">#FCEABB</color>     <!-- Mid -->
-    <color name="primary_end">#FFFFFF</color>     <!-- Bottom -->
-
-    <!-- Main Primary (used in buttons/text) -->
-    <color name="orange">#0D47A1</color> <!-- softer, premium orange -->
+    <!-- 🔥 PRIMARY (Deep Cinematic Gradient) -->
+    <color name="primary_start">#000000</color>   <!-- Pure Black -->
+    <color name="primary_mid">#0A0A0A</color>     <!-- Almost Black -->
+    <color name="primary_end">#8B0000</color>     <!-- Deep Blood Red -->
+    <color name="red_transparent">#33EF4444</color>
+    <color name="dark_gray_transparent">#339E9E9E</color>
+    <!-- 🔴 Accent (More aggressive than before) -->
+    <color name="orange">#FF1E1E</color> <!-- Neon Toxic Red -->
 
     <!-- Secondary -->
     <color name="blue">#2563EB</color>
+    <color name="transparent">#00000000</color>
 
     <!-- Base Colors -->
-    <color name="white">#FFFFFF</color>
+    <color name="white">#F5F5F5</color> <!-- Slightly brighter for contrast -->
     <color name="black">#000000</color>
 
     <!-- UI Surface Colors -->
-    <color name="light_gray">#F8F9FB</color>  <!-- softer than before -->
-    <color name="card_bg">#FFFFFF</color>
+    <color name="light_gray">#0A0A0A</color>  <!-- background -->
+    <color name="card_bg">#121212</color>     <!-- elevated cards -->
 
     <!-- Text Colors -->
-    <color name="dark_gray">#6B7280</color>   <!-- modern gray -->
-    <color name="text_primary">#111827</color>
-    <color name="text_secondary">#6B7280</color>
+    <color name="dark_gray">#8A8A8A</color>
+    <color name="text_primary">#F5F5F5</color>
+    <color name="text_secondary">#B3B3B3</color>
 
     <!-- Status Colors -->
-    <color name="green">#22C55E</color>  <!-- fresher green -->
-    <color name="red">#EF4444</color>
-    <color name="dark_red">#DC2626</color>
-    <color name="yellow">#FACC15</color>
+    <color name="green">#22C55E</color>
+    <color name="red">#FF1E1E</color>
+    <color name="dark_red">#8B0000</color> <!-- deeper red -->
+    <color name="yellow">#FFC857</color>
 
 </resources>

@@ -6,18 +6,17 @@
     android:orientation="vertical"
     android:background="@android:color/transparent">
 
-
     <!-- Top App Bar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/orange"
+        android:background="@color/card_bg"
         android:elevation="4dp"
         app:title="Video Player"
-        app:titleTextColor="@color/white"
+        app:titleTextColor="@color/red"
         app:navigationIcon="@drawable/ic_back_white"
-        app:navigationIconTint="@color/white" />
+        app:navigationIconTint="@color/red" />
 
     <!-- Control Buttons -->
     <LinearLayout
@@ -34,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="← Back"
-            android:backgroundTint="@color/blue"
+            android:backgroundTint="@color/dark_gray"
             android:textColor="@color/white"
             android:padding="8dp"
             android:layout_marginEnd="4dp"
@@ -46,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="⟳ Refresh"
-            android:backgroundTint="@color/orange"
+            android:backgroundTint="@color/red"
             android:textColor="@color/white"
             android:padding="8dp"
             android:layout_marginStart="2dp"
@@ -97,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="@color/orange"
+            android:indeterminateTint="@color/red"
             android:visibility="gone" />
 
         <TextView
@@ -107,7 +106,7 @@
             android:layout_gravity="center"
             android:text="Failed to load video"
             android:textAlignment="center"
-            android:textColor="@color/dark_gray"
+            android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:visibility="gone"
             android:padding="16dp" />
@@ -120,7 +119,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="12dp"
-        android:background="@color/light_gray"
+        android:background="@color/card_bg"
         android:elevation="2dp">
 
         <TextView

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="#FFFDF5"
+    app:cardBackgroundColor="@color/card_bg"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:text="Video Title"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/orange"
+            android:textColor="@color/red"
             android:maxLines="2"
             android:ellipsize="end"/>
 
@@ -35,7 +35,7 @@
             android:text="Channel Name"
             android:fontFamily="@font/inter_regular"
             android:textSize="12sp"
-            android:textColor="@color/blue"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="4dp"
             android:maxLines="1"
             android:ellipsize="end"/>
@@ -47,8 +47,8 @@
             android:layout_height="wrap_content"
             android:text="Comments: 0"
             android:fontFamily="@font/inter_regular"
-
             android:textSize="14sp"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"/>
 
         <!-- Toxicity and Date Row -->
@@ -67,7 +67,8 @@
                 android:text="Toxicity: 0%"
                 android:fontFamily="@font/inter_regular"
                 android:textSize="12sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/red"/>
 
             <TextView
                 android:id="@+id/textDate"

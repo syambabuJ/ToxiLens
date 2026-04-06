@@ -5,17 +5,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@android:color/transparent">
+    android:background="@color/light_gray">
 
-
-<TextView
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Comment Analysis"
         android:textSize="24sp"
         android:fontFamily="@font/inter_semibold"
         android:textStyle="bold"
-        android:textColor="@color/orange"
+        android:textColor="@color/red"
         android:layout_marginBottom="16dp"/>
 
     <LinearLayout
@@ -25,7 +24,7 @@
         android:gravity="center_vertical"
         android:layout_marginBottom="16dp">
 
-        <com.example.yttoxicitychecker.utils.CanvasView
+        <com.toxilens.yttoxicitychecker.utils.CanvasView
             android:id="@+id/canvasChart"
             android:layout_width="120dp"
             android:layout_height="120dp"/>
@@ -44,6 +43,7 @@
                 android:text="🔴 Toxic: 0"
                 android:textSize="14sp"
                 android:fontFamily="@font/inter_regular"
+                android:textColor="@color/red"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
@@ -53,6 +53,7 @@
                 android:text="🟡 Neutral: 0"
                 android:fontFamily="@font/inter_regular"
                 android:textSize="14sp"
+                android:textColor="@color/yellow"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
@@ -61,11 +62,90 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_regular"
                 android:text="🟢 Safe: 0"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="@color/green"/>
 
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- Add this after the canvas chart section -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/filterToggleGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFilterAll"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:textSize="10dp"
+            android:fontFamily="@font/inter_regular"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
+            android:textColor="#FFEB3B"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="All"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFilterToxic"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:fontFamily="@font/inter_regular"
+            android:layout_weight="1"
+            android:text="Toxic"
+            android:textSize="10dp"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
+            android:textColor="#EF4444"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFilterNeutral"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:fontFamily="@font/inter_regular"
+            android:layout_weight="1"
+            android:text="Neutral"
+            android:textSize="10dp"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
+            android:textColor="#F59E0B"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFilterSafe"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Safe"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="10dp"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
+            android:textColor="#10B981"/>
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Add filter info text -->
+    <TextView
+        android:id="@+id/textFilterInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_regular"
+        android:text="Showing all comments"
+        android:textSize="12sp"
+        android:textColor="@color/dark_gray"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"/>
+
 
     <TextView
         android:id="@+id/textToxicityScore"
@@ -75,7 +155,7 @@
         android:textSize="16sp"
         android:fontFamily="@font/inter_medium"
         android:textStyle="bold"
-        android:textColor="@color/orange"
+        android:textColor="@color/red"
         android:layout_marginBottom="16dp"/>
 
     <Button
@@ -84,8 +164,9 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/inter_medium"
         android:text="Refresh Analysis"
-        android:backgroundTint="#86EFAC"
+        android:backgroundTint="@color/red"
         android:textColor="@color/white"
+        android:elevation="4dp"
         android:layout_marginBottom="16dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -101,6 +182,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:indeterminateTint="@color/red"/>
 
 </LinearLayout>

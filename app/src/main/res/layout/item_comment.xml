@@ -6,9 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-
     app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFDF5">
+    app:cardBackgroundColor="#121212">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +31,7 @@
                 android:fontFamily="@font/inter_medium"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#666666"/>
+                android:textColor="@color/text_primary"/>
 
             <TextView
                 android:id="@+id/textLikes"
@@ -41,7 +40,7 @@
                 android:text="❤️ 0"
                 android:fontFamily="@font/inter_regular"
                 android:textSize="12sp"
-                android:textColor="#666666"/>
+                android:textColor="@color/text_secondary"/>
 
         </LinearLayout>
 
@@ -53,7 +52,7 @@
             android:text="Comment text here"
             android:fontFamily="@font/inter_regular"
             android:textSize="14sp"
-            android:textColor="#000000"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:lineSpacingExtra="2dp"/>
@@ -73,7 +72,7 @@
                 android:text="Safe"
                 android:fontFamily="@font/inter_regular"
                 android:textSize="12sp"
-                android:textColor="@android:color/white"
+                android:textColor="@color/white"
                 android:padding="6dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
@@ -88,13 +87,13 @@
                 android:text="0%"
                 android:fontFamily="@font/inter_regular"
                 android:textSize="11sp"
-                android:textColor="#666666"
+                android:textColor="@color/text_secondary"
                 android:layout_marginStart="8dp"
                 android:visibility="gone"/>
 
         </LinearLayout>
 
-        <!-- NEW: Multi-label Toxicity Types Row -->
+        <!-- Multi-label Toxicity Types -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,7 +107,7 @@
                 android:text=""
                 android:fontFamily="@font/inter_medium"
                 android:textSize="11sp"
-                android:textColor="#666666"
+                android:textColor="@color/text_secondary"
                 android:padding="4dp"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
@@ -122,7 +121,7 @@
                 android:text=""
                 android:fontFamily="@font/inter_regular"
                 android:textSize="10sp"
-                android:textColor="#EF4444"
+                android:textColor="@color/red"
                 android:layout_marginTop="4dp"
                 android:visibility="gone"/>
 
@@ -137,7 +136,7 @@
             android:layout_marginTop="8dp"
             android:max="100"
             android:progress="0"
-            android:progressTint="@color/orange"
+            android:progressTint="@color/red"
             android:visibility="gone"/>
 
     </LinearLayout>

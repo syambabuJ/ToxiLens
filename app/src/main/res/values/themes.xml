@@ -8,6 +8,8 @@
         <item name="colorPrimaryVariant">#F6D365</item>
         <item name="colorOnPrimary">@color/black</item>
 
+
+
         <!-- Secondary Colors -->
         <item name="colorSecondary">@color/blue</item>
         <item name="colorSecondaryVariant">@color/blue</item>

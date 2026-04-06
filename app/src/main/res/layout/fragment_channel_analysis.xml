@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Channel Analysis"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="@color/red"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Input Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_medium"
+                    android:text="Enter YouTube Channel URL"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/editTextChannelUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="https://youtube.com/@channel or https://youtube.com/channel/..."
+                    android:padding="12dp"
+                    android:fontFamily="@font/inter_regular"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/dark_gray"
+                    android:background="@drawable/bg_input_field"
+                    android:layout_marginBottom="16dp"
+                    android:imeOptions="actionDone"
+                    android:inputType="textUri"/>
+
+                <Button
+                    android:id="@+id/buttonAnalyzeChannel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Analyze Channel"
+                    android:fontFamily="@font/inter_medium"
+                    android:backgroundTint="@color/red"
+                    android:textColor="@color/white"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Progress -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/textStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/inter_regular"
+            android:layout_marginTop="8dp"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/dark_gray"
+            android:visibility="gone"/>
+
+        <!-- Results Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/resultCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardElevation="4dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Channel Header -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📺 Channel Analysis Results"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter_medium"
+                    android:textColor="@color/red"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/textChannelName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Channel Name"
+                    android:fontFamily="@font/inter_medium"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/blue"/>
+
+                <TextView
+                    android:id="@+id/textChannelUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:fontFamily="@font/inter_regular"
+                    android:textSize="12sp"
+                    android:textColor="@color/dark_gray"
+                    android:layout_marginBottom="12dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/dark_gray"
+                    android:layout_marginVertical="8dp"/>
+
+                <!-- Channel Statistics -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📊 Channel Statistics"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/inter_medium"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="👥 Subscribers:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"/>
+                    <TextView
+                        android:id="@+id/textSubscribers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/red"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="📹 Total Videos:"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"/>
+                    <TextView
+                        android:id="@+id/textTotalVideos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/red"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="👁️ Total Views:"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"/>
+                    <TextView
+                        android:id="@+id/textTotalViews"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/red"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/dark_gray"
+                    android:layout_marginVertical="8dp"/>
+
+                <!-- Safety Score Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/safetyCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/card_bg"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🛡️ Safety Score"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/inter_medium"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
+
+                        <TextView
+                            android:id="@+id/textSafetyScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:fontFamily="@font/inter_semibold"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/red"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="8dp"/>
+
+                        <TextView
+                            android:id="@+id/textSafetyLevel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_medium"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_gravity="center_horizontal"/>
+
+                        <ProgressBar
+                            android:id="@+id/progressSafety"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:max="100"
+                            android:fontFamily="@font/inter_regular"
+                            android:progress="0"
+                            android:progressTint="@color/red"
+                            android:layout_marginTop="12dp"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Community Health Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/healthCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/card_bg"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/textCommunityHealth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_regular"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_primary"/>
+
+                        <TextView
+                            android:id="@+id/textRecommendation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_regular"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/red"
+                            android:layout_marginTop="8dp"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Most Toxic Videos Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mostToxicSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/card_bg"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_medium"
+                            android:text="🔴 Most Toxic Videos"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
+
+                        <TextView
+                            android:id="@+id/textMostToxicWarning"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_medium"
+                            android:textSize="12sp"
+                            android:textColor="@color/red"
+                            android:layout_marginTop="4dp"/>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerMostToxic"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Trend Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/trendCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/card_bg"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📈 Toxicity Trend"
+                            android:fontFamily="@font/inter_semibold"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
+
+                        <TextView
+                            android:id="@+id/textTrend"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_regular"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginTop="8dp"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Comparison Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/comparisonCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="@color/card_bg"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/textComparison"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:fontFamily="@font/inter_medium"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_primary"/>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Toxicity Analysis Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📊 Toxicity Analysis"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/inter_medium"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="💬 Comments Analyzed:"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"/>
+                    <TextView
+                        android:id="@+id/textCommentsAnalyzed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/red"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔴 Toxic Comments:"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textColor="#EF4444"/>
+                    <TextView
+                        android:id="@+id/textToxicCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#EF4444"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🟡 Neutral Comments:"
+                        android:textSize="14sp"
+                        android:textColor="#F59E0B"/>
+                    <TextView
+                        android:id="@+id/textNeutralCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#F59E0B"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🟢 Safe Comments:"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textColor="#10B981"/>
+                    <TextView
+                        android:id="@+id/textSafeCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:fontFamily="@font/inter_regular"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#10B981"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Average Toxicity Score"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/inter_medium"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:id="@+id/textAvgToxicity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:fontFamily="@font/inter_semibold"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/red"
+                    android:layout_gravity="center_horizontal"/>
+
+                <ProgressBar
+                    android:id="@+id/progressToxicity"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:max="100"
+                    android:fontFamily="@font/inter_regular"
+                    android:progress="0"
+                    android:progressTint="@color/red"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:id="@+id/textToxicityLevel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:fontFamily="@font/inter_regular"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"/>
+
+                <!-- Open Channel Button -->
+                <Button
+                    android:id="@+id/buttonOpenChannel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="▶ Open In YouTube"
+                    android:backgroundTint="@color/blue"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="16dp"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</ScrollView>

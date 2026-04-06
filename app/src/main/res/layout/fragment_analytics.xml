@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:background="@color/light_gray">
 
-
-<LinearLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -20,7 +19,7 @@
             android:textSize="24sp"
             android:fontFamily="@font/inter_semibold"
             android:textStyle="bold"
-            android:textColor="@color/orange"
+            android:textColor="@color/red"
             android:layout_marginBottom="8dp"/>
 
         <!-- Video Title Section -->
@@ -29,9 +28,9 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
-            android:backgroundTint="#FFFDF5"
+            android:backgroundTint="@color/card_bg"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/light_gray">
+            app:cardBackgroundColor="@color/card_bg">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,7 +45,7 @@
                     android:textSize="14sp"
                     android:fontFamily="@font/inter_regular"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/red"
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
@@ -56,7 +55,7 @@
                     android:text="No video loaded"
                     android:textSize="16sp"
                     android:fontFamily="@font/inter_regular"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/text_primary"
                     android:maxLines="2"
                     android:ellipsize="end"
                     android:lineSpacingExtra="4dp"/>
@@ -96,7 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
-            android:backgroundTint="#FFFDF5"
+            android:backgroundTint="@color/card_bg"
             app:cardElevation="4dp"
             android:layout_marginBottom="16dp">
 
@@ -113,9 +112,10 @@
                     android:text="📊 Toxicity Distribution"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="16dp"/>
 
-                <com.example.yttoxicitychecker.utils.CanvasView
+                <com.toxilens.yttoxicitychecker.utils.CanvasView
                     android:id="@+id/canvasChart"
                     android:layout_width="200dp"
                     android:layout_height="200dp"
@@ -125,7 +125,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/light_gray"
+                    android:background="@color/dark_gray"
                     android:layout_marginVertical="12dp"/>
 
                 <TextView
@@ -136,6 +136,7 @@
                     android:text="📝 Total Comments: 0"
                     android:textSize="14sp"
                     android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
@@ -145,6 +146,7 @@
                     android:text="🔴 Toxic: 0"
                     android:fontFamily="@font/inter_regular"
                     android:textSize="14sp"
+                    android:textColor="@color/red"
                     android:layout_marginBottom="6dp"/>
 
                 <TextView
@@ -154,6 +156,7 @@
                     android:layout_height="wrap_content"
                     android:text="🟡 Neutral: 0"
                     android:textSize="14sp"
+                    android:textColor="@color/yellow"
                     android:layout_marginBottom="6dp"/>
 
                 <TextView
@@ -162,7 +165,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🟢 Safe: 0"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"
+                    android:textColor="@color/green"/>
 
             </LinearLayout>
 
@@ -174,7 +178,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            android:backgroundTint="#FFFDF5"
+            android:backgroundTint="@color/card_bg"
             android:layout_marginBottom="16dp">
 
             <LinearLayout
@@ -190,6 +194,7 @@
                     android:text="⚠️ Toxicity Score"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="16dp"/>
 
                 <TextView
@@ -200,7 +205,7 @@
                     android:fontFamily="@font/inter_medium"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/red"
                     android:layout_marginBottom="16dp"/>
 
                 <ProgressBar
@@ -210,7 +215,28 @@
                     android:layout_height="8dp"
                     android:max="100"
                     android:progress="0"
-                    android:progressTint="@color/orange"/>
+                    android:progressTint="@color/red"/>
+                <!-- ADD THIS inside Toxicity Score Card (after progress bar) -->
+
+                <TextView
+                    android:id="@+id/textAvgToxicity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Avg Toxicity: 0%"
+                    android:fontFamily="@font/inter_regular"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="12dp"/>
+                <TextView
+                    android:id="@+id/textSentimentDist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sentiment Distribution"
+                    android:fontFamily="@font/inter_regular"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:lineSpacingExtra="4dp"
+                    android:layout_marginTop="8dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -225,64 +251,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Advanced Metrics Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:backgroundTint="#FFFDF5"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:fontFamily="@font/inter_medium"
-                    android:layout_height="wrap_content"
-                    android:text="📈 Advanced Metrics"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="16dp"/>
-
-                <TextView
-                    android:id="@+id/textAvgToxicity"
-                    android:fontFamily="@font/inter_regular"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Avg Toxicity: 0%"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="12dp"/>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/light_gray"
-                    android:layout_marginVertical="8dp"/>
-
-                <TextView
-                    android:id="@+id/textSentimentDist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/inter_regular"
-                    android:text="Sentiment Distribution"
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="4dp"/>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Recommendations Section - FIXED -->
+        <!-- Recommendations -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/recommendationsSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="#FFFDF5"
+            android:backgroundTint="@color/card_bg"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
             android:layout_marginBottom="16dp"
@@ -302,7 +276,7 @@
                     android:textSize="16sp"
                     android:fontFamily="@font/inter_medium"
                     android:textStyle="bold"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/red"
                     android:layout_marginBottom="12dp"/>
 
                 <ProgressBar
@@ -310,7 +284,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:indeterminateTint="@color/orange"
+                    android:indeterminateTint="@color/red"
                     android:visibility="gone"/>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -328,7 +302,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons -->
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -343,7 +317,7 @@
                 android:layout_weight="1"
                 android:text="▶ View Video"
                 android:fontFamily="@font/inter_medium"
-                android:backgroundTint="@color/orange"
+                android:backgroundTint="@color/red"
                 android:textColor="@color/white"
                 android:layout_marginEnd="8dp"
                 android:paddingVertical="12dp"/>
@@ -361,7 +335,7 @@
 
         </LinearLayout>
 
-        <!-- Info Note -->
+        <!-- Info -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -371,7 +345,7 @@
             android:textColor="@color/dark_gray"
             android:gravity="center"
             android:padding="12dp"
-            android:background="@color/light_gray"
+            android:background="@color/card_bg"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"/>
 

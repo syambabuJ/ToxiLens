@@ -4,17 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@android:color/transparent">
+    android:background="@color/light_gray">
 
-
-<TextView
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Analysis History"
-    android:fontFamily="@font/inter_semibold"
+        android:fontFamily="@font/inter_semibold"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/orange"
+        android:textColor="@color/red"
         android:layout_marginBottom="16dp"/>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -38,7 +37,7 @@
         android:fontFamily="@font/inter_regular"
         android:text="No history yet.\nAnalyze some videos to see them here."
         android:textSize="16sp"
-        android:textColor="@color/light_gray"
+        android:textColor="@color/text_secondary"
         android:gravity="center"
         android:layout_gravity="center"
         android:visibility="gone"/>
