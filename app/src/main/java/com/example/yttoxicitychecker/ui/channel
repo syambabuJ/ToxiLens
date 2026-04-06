@@ -1,0 +1,418 @@
+package com.toxilens.yttoxicitychecker.ui.channel
+
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.toxilens.yttoxicitychecker.R
+import com.toxilens.yttoxicitychecker.data.model.VideoData
+import com.toxilens.yttoxicitychecker.data.model.VideoSummary
+import com.toxilens.yttoxicitychecker.databinding.FragmentChannelAnalysisBinding
+import com.toxilens.yttoxicitychecker.ui.adapters.MostToxicVideoAdapter
+import com.toxilens.yttoxicitychecker.ui.viewmodel.MainViewModel
+import com.toxilens.yttoxicitychecker.ui.webview.WebViewActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class ChannelAnalysisFragment : Fragment() {
+
+    private var _binding: FragmentChannelAnalysisBinding? = null
+    private val binding get() = _binding!!
+    private val TAG = "ChannelAnalysisFragment"
+
+    private val viewModel: MainViewModel by activityViewModels()
+    private lateinit var mostToxicAdapter: MostToxicVideoAdapter
+    private var analyzedVideosData = mutableListOf<VideoData>()
+    private var currentChannelId: String = ""
+    private var currentChannelName: String = ""
+    private var currentChannelUrl: String = ""
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        Log.d(TAG, "onCreateView called")
+        _binding = FragmentChannelAnalysisBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated called")
+
+        setupMostToxicRecyclerView()
+        setupListeners()
+
+        binding.editTextChannelUrl.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                analyzeChannel()
+                true
+            } else false
+        }
+    }
+
+    private fun setupMostToxicRecyclerView() {
+        mostToxicAdapter = MostToxicVideoAdapter { video ->
+            val intent = Intent(requireContext(), WebViewActivity::class.java).apply {
+                putExtra("video_id", video.videoId)
+                putExtra("video_url", "https://youtube.com/watch?v=${video.videoId}")
+                putExtra("video_title", video.title)
+            }
+            startActivity(intent)
+        }
+
+        binding.recyclerMostToxic.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = mostToxicAdapter
+        }
+    }
+
+    private fun setupListeners() {
+        binding.buttonAnalyzeChannel.setOnClickListener {
+            analyzeChannel()
+        }
+
+        binding.buttonOpenChannel.setOnClickListener {
+            openYouTubeChannel()
+        }
+    }
+
+    private fun openYouTubeChannel() {
+        Log.d(TAG, "=== OPEN CHANNEL BUTTON CLICKED ===")
+        Log.d(TAG, "currentChannelId: $currentChannelId")
+        Log.d(TAG, "currentChannelName: $currentChannelName")
+        Log.d(TAG, "currentChannelUrl: $currentChannelUrl")
+
+        // Try channel URL from data first (most reliable)
+        if (currentChannelUrl.isNotEmpty() && currentChannelUrl != "https://youtube.com/channel/") {
+            Log.d(TAG, "Opening channel URL: $currentChannelUrl")
+            openInWebView(currentChannelUrl, currentChannelName)
+            return
+        }
+
+        // Try channel ID
+        if (currentChannelId.isNotEmpty() && currentChannelId != "null") {
+            val channelUrl = "https://www.youtube.com/channel/$currentChannelId"
+            Log.d(TAG, "Opening channel ID URL: $channelUrl")
+            openInWebView(channelUrl, currentChannelName)
+            return
+        }
+
+        // Try from UI text
+        val channelNameFromUi = binding.textChannelName.text.toString()
+        if (channelNameFromUi.isNotEmpty() && channelNameFromUi != "Channel Name" && channelNameFromUi != "YouTube Video") {
+            // Try with @ handle format
+            val handleUrl = "https://www.youtube.com/@${channelNameFromUi.replace(" ", "")}"
+            Log.d(TAG, "Trying handle URL: $handleUrl")
+            openInWebView(handleUrl, channelNameFromUi)
+            return
+        }
+
+        // Last resort - search by name
+        if (channelNameFromUi.isNotEmpty() && channelNameFromUi != "Channel Name") {
+            val searchUrl = "https://www.youtube.com/results?search_query=${Uri.encode(channelNameFromUi)}"
+            Log.d(TAG, "Searching by name: $searchUrl")
+            openInWebView(searchUrl, channelNameFromUi)
+        } else {
+            Toast.makeText(requireContext(), "No channel information available. Please analyze a channel first.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun openInWebView(url: String, title: String) {
+        Log.d(TAG, "Opening WebView with URL: $url, Title: $title")
+        val intent = Intent(requireContext(), WebViewActivity::class.java).apply {
+            putExtra("video_id", "")
+            putExtra("video_url", url)
+            putExtra("video_title", title.ifEmpty { "YouTube Channel" })
+        }
+        startActivity(intent)
+    }
+
+    private fun analyzeChannel() {
+        val url = binding.editTextChannelUrl.text.toString().trim()
+
+        if (url.isEmpty()) {
+            Toast.makeText(requireContext(), "Please enter a YouTube channel URL", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        hideKeyboard()
+
+        binding.progressBar.visibility = View.VISIBLE
+        binding.textStatus.visibility = View.VISIBLE
+        binding.textStatus.text = "Analyzing channel..."
+        binding.resultCard.visibility = View.GONE
+
+        lifecycleScope.launch {
+            try {
+                val channelHandle = withContext(Dispatchers.IO) {
+                    viewModel.repository.extractChannelIdFromUrl(url)
+                }
+
+                if (channelHandle == null) {
+                    Toast.makeText(requireContext(), "Invalid channel URL", Toast.LENGTH_SHORT).show()
+                    binding.progressBar.visibility = View.GONE
+                    binding.textStatus.visibility = View.GONE
+                    return@launch
+                }
+
+                binding.textStatus.text = "Fetching channel data and analyzing videos..."
+
+                val channelData = withContext(Dispatchers.IO) {
+                    viewModel.repository.analyzeChannel(channelHandle)
+                }
+
+                // Store channel info for Open Channel button
+                currentChannelId = channelData.channelId
+                currentChannelName = channelData.channelName
+                currentChannelUrl = channelData.channelUrl
+
+                Log.d(TAG, "Channel Data - ID: $currentChannelId, Name: $currentChannelName, URL: $currentChannelUrl")
+                Log.d(TAG, "Most Toxic Videos Count: ${channelData.mostToxicVideos.size}")
+
+                // Build video data list for trend analysis from mostToxicVideos
+                analyzedVideosData.clear()
+                for (videoSummary in channelData.mostToxicVideos) {
+                    val videoData = VideoData(
+                        videoId = videoSummary.videoId,
+                        title = videoSummary.title,
+                        toxicityScore = videoSummary.toxicityScore,
+                        timestamp = System.currentTimeMillis()
+                    )
+                    analyzedVideosData.add(videoData)
+                    Log.d(TAG, "Added video: ${videoSummary.title} with toxicity: ${videoSummary.toxicityScore}")
+                }
+
+                updateUI(channelData, analyzedVideosData)
+                binding.progressBar.visibility = View.GONE
+                binding.textStatus.visibility = View.GONE
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error analyzing channel: ${e.message}", e)
+                binding.progressBar.visibility = View.GONE
+                binding.textStatus.visibility = View.GONE
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun updateUI(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData, videos: List<VideoData>) {
+        // Basic Channel Info
+        binding.textChannelName.text = channelData.channelName
+        binding.textChannelUrl.text = channelData.channelUrl
+
+        // Channel Statistics
+        binding.textSubscribers.text = channelData.getSubscriberDisplay()
+        binding.textTotalVideos.text = channelData.videoCount.toString()
+        binding.textTotalViews.text = channelData.getViewDisplay()
+
+        // Toxicity Analysis
+        binding.textCommentsAnalyzed.text = formatNumber(channelData.totalCommentsAnalyzed)
+        binding.textToxicCount.text = formatNumber(channelData.totalToxicCount)
+        binding.textNeutralCount.text = formatNumber(channelData.totalNeutralCount)
+        binding.textSafeCount.text = formatNumber(channelData.totalSafeCount)
+
+        // Toxicity Score
+        val toxicityPercentage = (channelData.averageToxicityScore * 100).toInt()
+        binding.textAvgToxicity.text = "$toxicityPercentage%"
+        binding.textToxicityLevel.text = channelData.getToxicityLevel()
+        binding.textToxicityLevel.setTextColor(channelData.getToxicityColor())
+        binding.progressToxicity.progress = toxicityPercentage
+
+        // ==================== SUGGESTION 1: Safety Score ====================
+        updateSafetyScore(channelData)
+
+        // ==================== SUGGESTION 2: Most Toxic Videos ====================
+        updateMostToxicVideos(channelData)
+
+        // ==================== SUGGESTION 3: Toxicity Trend ====================
+        updateToxicityTrend(channelData, videos)
+
+        // ==================== SUGGESTION 4: Community Health ====================
+        updateCommunityHealth(channelData)
+
+        // ==================== SUGGESTION 5: Category Comparison ====================
+        updateCategoryComparison(channelData)
+
+        binding.resultCard.visibility = View.VISIBLE
+        Log.d(TAG, "UI updated successfully")
+    }
+
+    // ==================== SUGGESTION 1: Safety Score with Color Coding ====================
+
+    private fun updateSafetyScore(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData) {
+        val safetyScore = channelData.getSafetyScore()
+        val safetyLevel = channelData.getSafetyLevel()
+
+        binding.textSafetyScore.text = "$safetyScore%"
+        binding.textSafetyLevel.text = when (safetyLevel) {
+            "VERY SAFE" -> "✅ VERY SAFE"
+            "SAFE" -> "🟢 SAFE"
+            "MODERATE" -> "🟡 MODERATE"
+            "CAUTION" -> "🟠 CAUTION"
+            else -> "🔴 UNSAFE"
+        }
+
+        val safetyColor = channelData.getSafetyColor()
+        binding.textSafetyScore.setTextColor(safetyColor)
+        binding.textSafetyLevel.setTextColor(safetyColor)
+        binding.progressSafety.progress = safetyScore
+        binding.progressSafety.progressTintList = android.content.res.ColorStateList.valueOf(safetyColor)
+
+        binding.progressSafety.visibility = View.VISIBLE
+        binding.safetyCard.visibility = View.VISIBLE
+    }
+
+    // ==================== SUGGESTION 2: Most Toxic Videos List ====================
+
+    private fun updateMostToxicVideos(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData) {
+        val mostToxic = channelData.mostToxicVideos
+
+        Log.d(TAG, "Most Toxic Videos size: ${mostToxic.size}")
+
+        if (mostToxic.isNotEmpty()) {
+            mostToxicAdapter.submitList(mostToxic)
+            binding.mostToxicSection.visibility = View.VISIBLE
+            binding.textMostToxicWarning.text = "⚠️ These videos have the highest toxicity - consider avoiding comment sections"
+        } else {
+            binding.mostToxicSection.visibility = View.GONE
+            Log.d(TAG, "No most toxic videos to display")
+        }
+    }
+
+    // ==================== SUGGESTION 3: Toxicity Trend Indicator ====================
+
+    private fun updateToxicityTrend(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData, videos: List<VideoData>) {
+        // Use trend from channel data
+        val trend = channelData.toxicityTrend
+        val trendText = when (trend) {
+            "increasing" -> "📈 TOXICITY INCREASING"
+            "decreasing" -> "📉 TOXICITY DECREASING"
+            else -> "➡️ TOXICITY STABLE"
+        }
+
+        val trendColor = when (trend) {
+            "increasing" -> android.graphics.Color.parseColor("#EF4444")
+            "decreasing" -> android.graphics.Color.parseColor("#10B981")
+            else -> android.graphics.Color.parseColor("#9CA3AF")
+        }
+
+        binding.textTrend.text = trendText
+        binding.textTrend.setTextColor(trendColor)
+        binding.trendCard.visibility = View.VISIBLE
+
+        Log.d(TAG, "Trend: $trendText")
+    }
+
+    // ==================== SUGGESTION 4: Community Health Summary ====================
+
+    private fun updateCommunityHealth(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData) {
+        val healthText = channelData.getCommunityHealth()
+        val recommendation = channelData.getRecommendation()
+
+        binding.textCommunityHealth.text = healthText
+        binding.textRecommendation.text = recommendation
+
+        val healthColor = when {
+            channelData.averageToxicityScore < 0.2 -> android.graphics.Color.parseColor("#10B981")
+            channelData.averageToxicityScore < 0.4 -> android.graphics.Color.parseColor("#34D399")
+            channelData.averageToxicityScore < 0.6 -> android.graphics.Color.parseColor("#FBBF24")
+            channelData.averageToxicityScore < 0.8 -> android.graphics.Color.parseColor("#F97316")
+            else -> android.graphics.Color.parseColor("#EF4444")
+        }
+
+        binding.textCommunityHealth.setTextColor(healthColor)
+        binding.healthCard.visibility = View.VISIBLE
+    }
+
+    // ==================== SUGGESTION 5: Category Comparison ====================
+
+    private fun updateCategoryComparison(channelData: com.toxilens.yttoxicitychecker.data.model.ChannelData) {
+        // Detect category based on channel name and video titles
+        val videoTitles = analyzedVideosData.map { it.title }
+        val detectedCategory = detectCategory(channelData.channelName, videoTitles)
+
+        val avgForCategory = getCategoryAverageToxicity(detectedCategory)
+        val difference = ((channelData.averageToxicityScore - avgForCategory) * 100).toInt()
+
+        val comparisonText = when {
+            difference > 20 -> "📊 $difference% MORE toxic than average $detectedCategory channel"
+            difference < -20 -> "📊 ${kotlin.math.abs(difference)}% LESS toxic than average $detectedCategory channel"
+            else -> "📊 Similar to average $detectedCategory channel"
+        }
+
+        val comparisonColor = when {
+            difference > 20 -> android.graphics.Color.parseColor("#EF4444")
+            difference < -20 -> android.graphics.Color.parseColor("#10B981")
+            else -> android.graphics.Color.parseColor("#FBBF24")
+        }
+
+        binding.textComparison.text = comparisonText
+        binding.textComparison.setTextColor(comparisonColor)
+        binding.comparisonCard.visibility = View.VISIBLE
+    }
+
+    private fun detectCategory(channelName: String, videoTitles: List<String>): String {
+        val allText = (listOf(channelName) + videoTitles).joinToString(" ").lowercase()
+
+        return when {
+            allText.contains("gaming") || allText.contains("gameplay") || allText.contains("fortnite") || allText.contains("minecraft") -> "Gaming"
+            allText.contains("music") || allText.contains("song") || allText.contains("album") || allText.contains("official audio") -> "Music"
+            allText.contains("learn") || allText.contains("tutorial") || allText.contains("course") || allText.contains("lesson") -> "Education"
+            allText.contains("news") || allText.contains("breaking") || allText.contains("update") || allText.contains("politics") -> "News"
+            allText.contains("comedy") || allText.contains("funny") || allText.contains("joke") || allText.contains("skit") -> "Comedy"
+            allText.contains("vlog") || allText.contains("daily") || allText.contains("life") -> "Vlog"
+            allText.contains("tech") || allText.contains("review") || allText.contains("gadget") || allText.contains("phone") -> "Tech"
+            else -> "General"
+        }
+    }
+
+    private fun getCategoryAverageToxicity(category: String): Float {
+        return when (category) {
+            "Gaming" -> 0.45f
+            "Music" -> 0.25f
+            "Education" -> 0.15f
+            "News" -> 0.65f
+            "Comedy" -> 0.40f
+            "Vlog" -> 0.35f
+            "Tech" -> 0.30f
+            else -> 0.35f
+        }
+    }
+
+    private fun formatNumber(number: Int): String {
+        return when {
+            number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
+            number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
+            else -> number.toString()
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val view = requireActivity().currentFocus
+        if (view != null) {
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+        binding.editTextChannelUrl.clearFocus()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
