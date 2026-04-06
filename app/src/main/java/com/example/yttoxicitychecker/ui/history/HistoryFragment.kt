@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.ui.history
+package com.toxilens.yttoxicitychecker.ui.history
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,10 +9,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.yttoxicitychecker.databinding.FragmentHistoryBinding
-import com.example.yttoxicitychecker.ui.adapters.HistoryAdapter
-import com.example.yttoxicitychecker.ui.viewmodel.MainViewModel
-import com.example.yttoxicitychecker.ui.webview.WebViewActivity
+import com.toxilens.yttoxicitychecker.databinding.FragmentHistoryBinding
+import com.toxilens.yttoxicitychecker.ui.adapters.HistoryAdapter
+import com.toxilens.yttoxicitychecker.ui.viewmodel.MainViewModel
+import com.toxilens.yttoxicitychecker.ui.webview.WebViewActivity
 
 class HistoryFragment : Fragment() {
 
