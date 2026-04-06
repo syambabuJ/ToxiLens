@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.ui.webview
+package com.toxilens.yttoxicitychecker.ui.webview
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -11,7 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.yttoxicitychecker.databinding.ActivityWebViewBinding
+import com.toxilens.yttoxicitychecker.databinding.ActivityWebViewBinding
 
 class WebViewActivity : AppCompatActivity() {
 
