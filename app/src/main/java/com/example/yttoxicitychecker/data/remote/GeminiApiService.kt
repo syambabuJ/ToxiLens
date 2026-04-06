@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.data.remote
+package com.toxilens.yttoxicitychecker.data.remote
 
 import retrofit2.http.*
 
