@@ -1,4 +1,4 @@
-package com.example.yttoxicitychecker.ui.home
+package com.toxilens.yttoxicitychecker.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,18 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.yttoxicitychecker.databinding.FragmentHomeBinding
-import com.example.yttoxicitychecker.ui.adapters.CommentAdapter
-import com.example.yttoxicitychecker.ui.viewmodel.MainViewModel
-import com.example.yttoxicitychecker.utils.KeyboardUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.toxilens.yttoxicitychecker.databinding.FragmentHomeBinding
+import com.toxilens.yttoxicitychecker.ui.adapters.CommentAdapter
+import com.toxilens.yttoxicitychecker.ui.viewmodel.MainViewModel
+import com.toxilens.yttoxicitychecker.utils.KeyboardUtils
 
 class HomeFragment : Fragment() {
 
