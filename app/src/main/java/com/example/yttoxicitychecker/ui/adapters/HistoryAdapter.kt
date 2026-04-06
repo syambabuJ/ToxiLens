@@ -1,11 +1,11 @@
-package com.example.yttoxicitychecker.ui.adapters
+package com.toxilens.yttoxicitychecker.ui.adapters
 
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.yttoxicitychecker.data.model.VideoData
-import com.example.yttoxicitychecker.databinding.ItemHistoryBinding
+import com.toxilens.yttoxicitychecker.data.model.VideoData
+import com.toxilens.yttoxicitychecker.databinding.ItemHistoryBinding
 import java.util.*
 
 class HistoryAdapter(
