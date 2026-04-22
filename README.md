@@ -79,11 +79,11 @@ text
 
 | Home Screen | Analysis Screen | Analytics Screen |
 |-------------|-----------------|------------------|
-| ![Home](toxilens screenshots/1.jpeg) | ![Analysis](screenshots/analysis.png) | ![Analytics](screenshots/analytics.png) |
+| ![Home](screenshots/1.jpeg) | ![Analysis](screenshots/6.jpeg) | ![Analytics](screenshots/3.jpeg) |
 
 | Channel Analysis | History Screen | Login Screen |
 |------------------|----------------|---------------|
-| ![Channel](screenshots/channel.png) | ![History](screenshots/history.png) | ![Login](screenshots/login.png) |
+| ![Channel](screenshots/5.jpeg) | ![History](screenshots/4.jpeg) | ![Login](screenshots/2.jpeg) |
 
 ---
 
